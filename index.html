@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Futuristic Quiz Arena</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+padding:20px;
+color:white;
+background:url("YOUR_IMAGE_NAME.png");
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
+min-height:100vh;
+}
+
+.container{
+width:85%;
+max-width:1100px;
+margin:auto;
+padding:25px;
+border-radius:25px;
+background:rgba(20,20,40,0.55);
+backdrop-filter:blur(15px);
+border:1px solid rgba(255,255,255,0.15);
+box-shadow:0 0 30px rgba(0,0,0,0.5);
+}
+
+.title{
+font-size:60px;
+font-weight:bold;
+text-align:center;
+margin-bottom:25px;
+color:white;
+text-shadow:
+0 0 10px #ff00ff,
+0 0 20px #7b2cff,
+0 0 40px #7b2cff;
+}
+
+.section{
+background:rgba(255,255,255,0.05);
+padding:20px;
+border-radius:20px;
+margin-top:20px;
+border:1px solid rgba(255,255,255,0.1);
+}
+
+input{
+width:90%;
+padding:12px;
+margin:6px;
+border-radius:10px;
+border:1px solid rgba(255,255,255,0.2);
+background:rgba(255,255,255,0.08);
+color:white;
+font-size:15px;
+outline:none;
+}
+
+input::placeholder{
+color:#ddd;
+}
+
+button{
+padding:12px 18px;
+margin:6px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+font-size:15px;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.adminBtn{
+background:linear-gradient(45deg,#7b2cff,#b84dff);
+color:white;
+}
+
+.startBtn{
+background:linear-gradient(45deg,#00c853,#00e676);
+color:white;
+width:250px;
+}
+
+.option{
+background:linear-gradient(45deg,#2196f3,#00b0ff);
+color:white;
+width:70%;
+}
+
+.removeBtn{
+background:linear-gradient(45deg,#ff1744,#ff5252);
+color:white;
+}
+
+.timer{
+font-size:32px;
+font-weight:bold;
+margin:20px;
+color:#ffe600;
+text-shadow:0 0 15px #ffe600;
+}
+
+.questionCard{
+background:rgba(255,255,255,0.08);
+padding:15px;
+margin:10px;
+border-radius:15px;
+}
+
+.leaderboard{
+background:rgba(255,255,255,0.08);
+padding:20px;
+border-radius:15px;
+margin-top:20px;
+}
+
+.rank1{
+color:gold;
+font-size:24px;
+font-weight:bold;
+}
+
+.rank2{
+color:silver;
+font-size:22px;
+font-weight:bold;
+}
+
+.rank3{
+color:#cd7f32;
+font-size:20px;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="title">
+🧠 Quiz Arena 🔥
+</div>
+
+<div class="container">
+
+<!-- ADMIN LOGIN -->
+
+<div class="section">
+
+<input type="password"
+id="key"
+placeholder="Enter Admin Password">
+
+<button class="adminBtn"
+onclick="adminLogin()">
+🔐 Admin Login
+</button>
+
+</div>
+
+<!-- ADMIN PANEL -->
+
+<div id="admin"
+style="display:none;">
+
+<div class="section">
+
+<h2>🏷 Change Quiz Name</h2>
+
+<input id="quizNameInput"
+placeholder="Enter Quiz Name">
+
+<button class="adminBtn"
+onclick="setQuizName()">
+Update Quiz Name
+</button>
+
+</div>
+
+<div class="section">
+
+<h2>🔑 Change Password</h2>
+
+<input type="password"
+id="oldKey"
+placeholder="Old Password"><br>
+
+<input type="password"
+id="newKey"
+placeholder="New Password"><br>
+
+<button class="adminBtn"
+onclick="changePassword()">
+Change Password
+</button>
+
+</div>
+
+<div class="section">
+
+<h2>➕ Add Question</h2>
+
+<input id="q"
+placeholder="Question"><br>
+
+<input id="o1"
+placeholder="Option 1"><br>
+
+<input id="o2"
+placeholder="Option 2"><br>
+
+<input id="o3"
+placeholder="Option 3"><br>
+
+<input id="o4"
+placeholder="Option 4"><br>
+
+<input id="ans"
+type="number"
+placeholder="Correct Answer (1-4)"><br>
+
+<input id="qtime"
+type="number"
+placeholder="Time in Seconds"><br>
+
+<button class="startBtn"
+onclick="addQ()">
+Add Question
+</button>
+
+</div>
+
+<div class="section">
+
+<h2>📋 Manage Questions</h2>
+
+<button class="adminBtn"
+onclick="showQuestions()">
+Show Questions
+</button>
+
+<div id="questionList"></div>
+
+</div>
+
+</div>
+
+<!-- PARTICIPANT -->
+
+<div class="section">
+
+<h2>👤 Participant Name</h2>
+
+<input id="playerName"
+placeholder="Enter Your Name">
+
+<br>
+
+<button class="startBtn"
+onclick="startQuiz()">
+▶ Start Quiz
+</button>
+
+</div>
+
+<div class="timer"
+id="timer"></div>
+
+<div id="quiz"></div>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+// ADMIN PASSWORD
+let ADMIN_KEY =
+localStorage.getItem("adminKey") || "1234";
+
+// QUIZ NAME
+let savedQuizName =
+localStorage.getItem("quizName");
+
+if(savedQuizName){
+
+document.querySelector(".title").innerText =
+"🧠 " + savedQuizName + " 🔥";
+
+}
+
+// QUESTIONS
+let questions =
+JSON.parse(localStorage.getItem("questions")) || [];
+
+let players = [];
+
+let scores = {};
+
+let currentPlayer = 0;
+
+let currentQ = 0;
+
+let quizQ = [];
+
+let timer;
+
+let timeLeft = 10;
+
+
+// ADMIN LOGIN
+function adminLogin(){
+
+let entered =
+document.getElementById("key").value;
+
+if(entered === ADMIN_KEY){
+
+document.getElementById("admin").style.display =
+"block";
+
+alert("✅ Admin Access Granted");
+
+}else{
+
+alert("❌ Wrong Password");
+
+}
+
+}
+
+
+// CHANGE QUIZ NAME
+function setQuizName(){
+
+let name =
+document.getElementById("quizNameInput")
+.value.trim();
+
+if(!name){
+
+alert("Enter Quiz Name");
+return;
+
+}
+
+localStorage.setItem(
+"quizName",
+name
+);
+
+document.querySelector(".title").innerText =
+"🧠 " + name + " 🔥";
+
+alert("✅ Quiz Name Updated");
+
+}
+
+
+// CHANGE PASSWORD
+function changePassword(){
+
+let oldPass =
+document.getElementById("oldKey").value;
+
+let newPass =
+document.getElementById("newKey").value;
+
+if(oldPass !== ADMIN_KEY){
+
+alert("❌ Wrong Old Password");
+return;
+
+}
+
+if(!newPass){
+
+alert("⚠ Enter New Password");
+return;
+
+}
+
+ADMIN_KEY = newPass;
+
+localStorage.setItem(
+"adminKey",
+newPass
+);
+
+alert("✅ Password Changed");
+
+document.getElementById("oldKey").value="";
+document.getElementById("newKey").value="";
+
+}
+
+
+// ADD QUESTION
+function addQ(){
+
+let q =
+document.getElementById("q").value.trim();
+
+let o1 =
+document.getElementById("o1").value.trim();
+
+let o2 =
+document.getElementById("o2").value.trim();
+
+let o3 =
+document.getElementById("o3").value.trim();
+
+let o4 =
+document.getElementById("o4").value.trim();
+
+let ans =
+document.getElementById("ans").value.trim();
+
+let qtime =
+document.getElementById("qtime").value.trim();
+
+if(!q || !o1 || !o2 || !o3 || !o4 || !ans || !qtime){
+
+alert("⚠ Fill All Fields");
+return;
+
+}
+
+questions.push({
+
+q:q,
+
+options:[o1,o2,o3,o4],
+
+ans:Number(ans),
+
+time:Number(qtime)
+
+});
+
+localStorage.setItem(
+"questions",
+JSON.stringify(questions)
+);
+
+alert("✅ Question Added");
+
+document.getElementById("q").value="";
+document.getElementById("o1").value="";
+document.getElementById("o2").value="";
+document.getElementById("o3").value="";
+document.getElementById("o4").value="";
+document.getElementById("ans").value="";
+document.getElementById("qtime").value="";
+
+showQuestions();
+
+}
+
+
+// SHOW QUESTIONS
+function showQuestions(){
+
+questions =
+JSON.parse(localStorage.getItem("questions")) || [];
+
+let container =
+document.getElementById("questionList");
+
+container.innerHTML = "";
+
+if(questions.length === 0){
+
+container.innerHTML =
+"<p>No Questions</p>";
+
+return;
+
+}
+
+questions.forEach(function(q,index){
+
+container.innerHTML += `
+
+<div class="questionCard">
+
+<b>Q${index+1}:</b> ${q.q}<br><br>
+
+1. ${q.options[0]}<br>
+2. ${q.options[1]}<br>
+3. ${q.options[2]}<br>
+4. ${q.options[3]}<br><br>
+
+✅ Correct Answer: ${q.ans}<br>
+
+⏱ Time: ${q.time} Seconds<br><br>
+
+<button class="removeBtn"
+data-id="${index}">
+❌ Remove
+</button>
+
+</div>
+
+`;
+
+});
+
+let buttons =
+document.querySelectorAll(".removeBtn");
+
+buttons.forEach(function(btn){
+
+btn.addEventListener("click",function(){
+
+let index =
+Number(this.dataset.id);
+
+removeQuestion(index);
+
+});
+
+});
+
+}
+
+
+// REMOVE QUESTION
+function removeQuestion(index){
+
+questions.splice(index,1);
+
+localStorage.setItem(
+"questions",
+JSON.stringify(questions)
+);
+
+showQuestions();
+
+alert("✅ Question Removed");
+
+}
+
+
+// START QUIZ
+function startQuiz(){
+
+let name =
+document.getElementById("playerName")
+.value.trim();
+
+if(!name){
+
+alert("⚠ Enter Name");
+return;
+
+}
+
+if(questions.length === 0){
+
+alert("⚠ No Questions Added");
+return;
+
+}
+
+if(!players.includes(name)){
+
+players.push(name);
+
+scores[name] = 0;
+
+}
+
+quizQ = [...questions];
+
+shuffle(quizQ);
+
+currentPlayer =
+players.indexOf(name);
+
+currentQ = 0;
+
+nextQuestion();
+
+}
+
+
+// SHUFFLE
+function shuffle(arr){
+
+for(let i=arr.length-1;i>0;i--){
+
+let j =
+Math.floor(Math.random()*(i+1));
+
+[arr[i],arr[j]] =
+[arr[j],arr[i]];
+
+}
+
+}
+
+
+// NEXT QUESTION
+function nextQuestion(){
+
+if(currentQ >= quizQ.length){
+
+showLeaderboard();
+return;
+
+}
+
+let q = quizQ[currentQ];
+
+let html = `
+
+<h2>🎯 ${players[currentPlayer]}</h2>
+
+<h3>${q.q}</h3>
+
+`;
+
+q.options.forEach((opt,i)=>{
+
+html += `
+
+<button class="option"
+onclick="answer(${i+1})">
+
+${opt}
+
+</button><br>
+
+`;
+
+});
+
+document.getElementById("quiz").innerHTML =
+html;
+
+startTimer();
+
+}
+
+
+// TIMER
+function startTimer(){
+
+clearInterval(timer);
+
+timeLeft =
+quizQ[currentQ].time || 10;
+
+let timerBox =
+document.getElementById("timer");
+
+timerBox.innerText =
+"⏱ Time Left: " + timeLeft;
+
+timer = setInterval(function(){
+
+timeLeft--;
+
+timerBox.innerText =
+"⏱ Time Left: " + timeLeft;
+
+if(timeLeft <= 0){
+
+clearInterval(timer);
+
+currentQ++;
+
+nextQuestion();
+
+}
+
+},1000);
+
+}
+
+
+// ANSWER
+function answer(a){
+
+clearInterval(timer);
+
+if(a === quizQ[currentQ].ans){
+
+scores[players[currentPlayer]]++;
+
+}
+
+currentQ++;
+
+nextQuestion();
+
+}
+
+
+// LEADERBOARD
+function showLeaderboard(){
+
+let html =
+"<div class='leaderboard'><h2>🏆 Leaderboard</h2>";
+
+let sorted =
+Object.entries(scores)
+.sort((a,b)=>b[1]-a[1]);
+
+sorted.forEach(function(p,i){
+
+let cls="";
+
+if(i===0) cls="rank1";
+else if(i===1) cls="rank2";
+else if(i===2) cls="rank3";
+
+html += `
+
+<div class="${cls}">
+
+${i+1}. ${p[0]} - ${p[1]} Marks
+
+</div><br>
+
+`;
+
+});
+
+html += `
+
+<button class="startBtn"
+onclick="location.reload()">
+
+🔄 Reset Quiz
+
+</button>
+
+</div>
+
+`;
+
+document.getElementById("quiz").innerHTML = "";
+
+document.getElementById("timer").innerHTML = "";
+
+document.getElementById("result").innerHTML =
+html;
+
+}
+
+</script>
+
+</body>
+
+</html>
