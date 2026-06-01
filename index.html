@@ -303,8 +303,13 @@ document.querySelector(".title").innerText =
 }
 
 // QUESTIONS
-let questions =
-JSON.parse(localStorage.getItem("questions")) || [];
+let questions = [];
+  async function loadQuestions() {
+  const response = await fetch("questions.json");
+  questions = await response.json();
+}
+
+loadQuestions();
 
 let players = [];
 
