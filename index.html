@@ -303,13 +303,8 @@ document.querySelector(".title").innerText =
 }
 
 // QUESTIONS
-let questions = [];
-  async function loadQuestions() {
-  const response = await fetch("questions.json");
-  questions = await response.json();
-}
-
-loadQuestions();
+let questions =
+JSON.parse(localStorage.getItem("questions")) || [];
 
 let players = [];
 
@@ -455,35 +450,10 @@ ans:Number(ans),
 time:Number(qtime)
 
 });
-
-function addQ(){
-
-let q = document.getElementById("q").value.trim();
-let o1 = document.getElementById("o1").value.trim();
-let o2 = document.getElementById("o2").value.trim();
-let o3 = document.getElementById("o3").value.trim();
-let o4 = document.getElementById("o4").value.trim();
-let ans = document.getElementById("ans").value.trim();
-let qtime = document.getElementById("qtime").value.trim();
-
-if(!q || !o1 || !o2 || !o3 || !o4 || !ans || !qtime){
-alert("⚠ Fill All Fields");
-return;
-}
-
-// only local preview (not permanent storage)
-questions.push({
-q:q,
-options:[o1,o2,o3,o4],
-ans:Number(ans),
-time:Number(qtime)
-});
-
-alert("⚠ Preview only (not saved for others yet)");
-
-showQuestions();
-
-}
+localStorage.setItem(
+"questions",
+JSON.stringify(questions)
+);
 
 alert("✅ Question Added");
 
