@@ -1,0 +1,24 @@
+[
+  {
+    "q": "What is C language?",
+    "options": [
+      "Programming Language",
+      "Browser",
+      "Operating System",
+      "Game"
+    ],
+    "ans": 1,
+    "time": 10
+  },
+  {
+    "q": "Who developed C?",
+    "options": [
+      "Dennis Ritchie",
+      "Bill Gates",
+      "Steve Jobs",
+      "Mark Zuckerberg"
+    ],
+    "ans": 1,
+    "time": 10
+  }
+]
